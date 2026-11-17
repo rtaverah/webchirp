@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Tiempo hasta que la página es usable</title>
+<iframe id="f" src="../index.html" style="width:900px;height:700px"></iframe>
+<script type="module">
+// Mide, dentro de la app real, cuándo se llenan Marca/Modelo (índice estático) y cuándo está listo el motor.
+const f = document.getElementById('f');
+const t0 = performance.now();
+const poll = setInterval(async () => {
+  const w = f.contentWindow;
+  if (w && w.webchirpUsableMs !== undefined && w.webchirpReady) {
+    clearInterval(poll);
+    const opts = w.document.querySelectorAll('#sel-model option').length;
+    const vendors = w.document.querySelectorAll('#sel-vendor option').length;
+    await fetch('/__result', { method: 'POST', body: JSON.stringify({ type: 'usable', usable_ms: w.webchirpUsableMs, motor_listo_ms: w.webchirpEngineMs, marcas: vendors, modelos_de_la_primera_marca: opts, total_ms: Math.round(performance.now() - t0) }) });
+  }
+}, 100);
+</script>

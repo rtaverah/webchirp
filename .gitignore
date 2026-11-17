@@ -1,0 +1,8 @@
+# Imágenes de radio (archivos de pruebas y de muestra) y copias de seguridad de lecturas
+*.img
+samples/
+# Material de pruebas generado por tests/prepare.sh (12 MB de imágenes y tests de CHIRP)
+tests/fixtures/
+# Archivos temporales
+*.bak
+.DS_Store

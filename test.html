@@ -1,0 +1,22 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Prueba del motor</title>
+<pre id="out">cargando…</pre>
+<script type="module">
+import { Engine } from './js/engine.js';
+const out = document.getElementById('out');
+const log = (s) => { out.textContent += '\n' + s; };
+window.engine = new Engine();
+try {
+  const t0 = performance.now();
+  await engine.load(log);
+  log('Cargado en ' + Math.round(performance.now() - t0) + ' ms');
+  const radios = await engine.listRadios();
+  log('Modelos: ' + radios.length);
+  window.radios = radios;
+  window.testDone = true;
+} catch (e) {
+  log('ERROR: ' + e.stack);
+  window.testDone = 'error';
+}
+</script>
