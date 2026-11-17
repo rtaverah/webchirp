@@ -1,0 +1,46 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Medición de carga perezosa</title>
+<pre id="out">midiendo…</pre>
+<script type="module">
+// Uso: lazy-bench.html?mode=lazy|full  (envía los tiempos a /__result)
+import { boot, makeEmu, attach, fetchImg, engine as _e } from './harness.js';
+import { Engine } from '../js/engine.js';
+
+const mode = new URLSearchParams(location.search).get('mode') || 'lazy';
+const out = {};
+const T = () => performance.now();
+const t0 = T();
+const e = await boot(() => {}, { all: false });          // Pyodide + chirp.zip + índice, sin drivers
+out.mode = mode;
+out.motor_listo_ms = Math.round(T() - t0);
+const py = e.py;
+const count = () => py.runPython("from chirp import directory; len(directory.DRV_TO_RADIO)");
+out.modelos_registrados_al_inicio = count();
+if (mode === 'full') {
+  const t1 = T();
+  await e.loadAll();
+  out.cargar_todos_los_drivers_ms = Math.round(T() - t1);
+}
+const rid = 'Baofeng_UV-5R';
+const img = await fetchImg('Baofeng_UV-5R.img');
+// 1) elegir el modelo y cargar su driver
+const t2 = T();
+await e.ensureDriver(rid);
+out.cargar_driver_uv5r_ms = Math.round(T() - t2);
+out.modelos_registrados_tras_driver = count();
+// 2) leer el UV-5R emulado
+const emu = makeEmu('uv5r', img);
+await attach(emu);
+const t3 = T();
+await e.download(rid);
+out.leer_uv5r_emulado_ms = Math.round(T() - t3);
+out.total_hasta_leer_ms = Math.round(T() - t0);
+out.modulos_cargados = [...e.loadedModules].join(',') || '(todos)';
+// 3) abrir un .img con metadatos en una página nueva sería lo más fiel; aquí se mide en el mismo motor
+const s = await e.saveFile();
+out.abrir_img_con_metadatos_ms = await (async () => { const t = T(); await e.openFile(new File([s.bytes], s.name)); return Math.round(T() - t); })();
+out.todos_cargados_tras_abrir = e.allLoaded;
+document.getElementById('out').textContent = JSON.stringify(out, null, 1);
+await fetch('/__result', { method: 'POST', body: JSON.stringify({ type: 'bench', ...out }) });
+</script>

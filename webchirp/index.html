@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebCHIRP · Programa tu radio desde el navegador</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>WebCHIRP</h1>
+    <span class="muted">Programa tu radio desde el navegador</span>
+    <span id="engine-status" class="engine-status">Preparando motor…</span>
+  </header>
+
+  <div id="hidden-warn" class="banner warn sticky" hidden>Mantén esta pestaña visible mientras se comunica con el radio.</div>
+
+  <div id="compat" class="banner warn" hidden>
+    Usa Google Chrome o Microsoft Edge actualizado en computador. Sin eso no se puede leer ni grabar el radio,
+    pero sí abrir, editar y guardar archivos.
+  </div>
+
+  <main>
+    <section class="card" id="radio-card">
+      <h2>Radio</h2>
+      <div class="grid-radio">
+        <div class="field">
+          <label>Puerto COM</label>
+          <div class="row">
+            <button id="btn-port" type="button">Elegir puerto…</button>
+            <span id="port-name" class="muted">Ninguno</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="radio-filter">Buscar modelo</label>
+          <input id="radio-filter" type="search" placeholder="Ej.: UV-5R" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="sel-vendor">Marca</label>
+          <select id="sel-vendor"></select>
+        </div>
+        <div class="field">
+          <label for="sel-model">Modelo</label>
+          <select id="sel-model"></select>
+        </div>
+      </div>
+      <div class="row wrap actions">
+        <button id="btn-read" type="button" class="primary">Leer del radio</button>
+        <button id="btn-scan" type="button" disabled title="Prueba los protocolos hasta que el radio responda (solo lee)">Detectar radio (barrido)</button>
+        <button id="btn-write" type="button" class="danger" disabled>Grabar en el radio</button>
+        <button id="btn-pause" type="button" hidden>Pausar</button>
+        <button id="btn-cancel" type="button" hidden>Cancelar</button>
+      </div>
+      <div id="progress" class="progress" hidden>
+        <div class="bar"><div id="progress-bar"></div></div>
+        <span id="progress-msg" class="muted"></span>
+        <div id="slow-warn" class="slow-warn" hidden>El radio no responde todavía… <button id="btn-slow-cancel" type="button">Cancelar</button></div>
+      </div>
+    </section>
+
+    <section class="card" id="file-card">
+      <h2>Archivo</h2>
+      <div class="row wrap">
+        <label class="button" for="file-input">Abrir archivo…</label>
+        <input id="file-input" type="file" accept=".img,.csv" hidden>
+        <button id="btn-new" type="button">Nuevo (CSV)</button>
+        <button id="btn-save" type="button" disabled>Guardar en mi computador</button>
+        <span id="file-info" class="muted">También puedes arrastrar un archivo .img o .csv a esta página.</span>
+      </div>
+    </section>
+
+    <p id="bf888-note" class="note" hidden>BF-888: VHF (136–174 MHz) y UHF (400–520 MHz) habilitados. El hardware original es solo UHF; en VHF el rendimiento puede ser bajo y transmitir fuera de las bandas autorizadas puede ser ilegal.</p>
+
+    <div id="doc-tabs" class="doctabs" role="tablist" hidden></div>
+
+    <section class="card" id="editor" hidden>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-tab="mem" role="tab">Memorias</button>
+        <button type="button" class="tab" data-tab="set" role="tab">Ajustes</button>
+      </div>
+      <div id="tab-mem">
+        <div class="row wrap toolbar">
+          <div id="dev-tabs" class="tabs sub" hidden></div>
+          <label class="check"><input id="hide-empty" type="checkbox"> Ocultar canales vacíos</label>
+          <button id="btn-copy" type="button" title="Copia los canales de esta pestaña a otro radio, sin los ajustes">Copiar canales a…</button>
+          <button id="btn-copy-sel" type="button" disabled title="Copia solo los canales marcados">Copiar seleccionados a…</button>
+          <button id="btn-copy-rows" type="button" disabled title="Copia las filas seleccionadas (también Cmd/Ctrl+C)">Copiar filas</button>
+          <button id="btn-paste" type="button" title="Pega desde la fila seleccionada (también Cmd/Ctrl+V)">Pegar</button>
+          <button id="btn-undo" type="button" disabled title="Deshace el último pegado (también Cmd/Ctrl+Z)">Deshacer pegado</button>
+          <span id="mem-count" class="muted"></span>
+        </div>
+        <div class="table-wrap"><table id="mem-table"></table></div>
+        <p class="note">Selecciona filas con clic en el número de canal (Shift para un rango, Cmd/Ctrl para sumar). Copia con Cmd/Ctrl+C y pega con Cmd/Ctrl+V en la fila de destino; clic derecho para más opciones.</p>
+      </div>
+      <div id="tab-set" hidden></div>
+    </section>
+
+  </main>
+
+
+  <footer>
+    <p class="disclaimer">WebCHIRP se ofrece tal cual, sin garantía. Programar un radio puede borrar su configuración o dejarlo inutilizable si se interrumpe la grabación, se usa el modelo equivocado o el cable falla. Haz siempre una copia de seguridad. Los autores no se hacen responsables de daños, pérdida de datos ni del uso de frecuencias no autorizadas.</p>
+    Basado en <a href="https://chirpmyradio.com" target="_blank" rel="noopener">CHIRP (chirpmyradio.com)</a>
+    · Licencia <a href="COPYING" target="_blank">GPLv3</a>
+  </footer>
+
+  <dialog id="dlg">
+    <form method="dialog">
+      <h3 id="dlg-title"></h3>
+      <div id="dlg-body"></div>
+      <div class="row end">
+        <button id="dlg-cancel" value="cancel" type="submit">Cancelar</button>
+        <button id="dlg-more" value="more" type="submit" hidden>Seguir buscando</button>
+        <button id="dlg-ok" value="ok" type="submit" class="primary">Continuar</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="ctx-menu" class="ctx-menu" role="menu" hidden>
+    <button type="button" role="menuitem" data-act="copy">Copiar</button>
+    <button type="button" role="menuitem" data-act="paste">Pegar</button>
+    <button type="button" role="menuitem" data-act="delete">Borrar canal</button>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <div id="drop" class="drop" hidden>Suelta el archivo para abrirlo</div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

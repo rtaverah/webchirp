@@ -1,0 +1,10 @@
+# Respaldos de radios del usuario (frecuencias privadas): nunca se suben
+respaldos/
+*.img
+# Material de pruebas generado
+webchirp/tests/fixtures/
+webchirp/samples/
+# Sistema y temporales
+.DS_Store
+*.bak
+.claude/

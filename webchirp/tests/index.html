@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>WebCHIRP · Pruebas</title>
+  <style>
+    body { font: 14px system-ui, sans-serif; margin: 1rem; }
+    button { margin: .2rem; padding: .4rem .8rem; }
+    pre { background: #f3f3f3; padding: .6rem; max-height: 60vh; overflow: auto; white-space: pre-wrap; }
+    .ok { color: #1b7a1b; } .bad { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>WebCHIRP: pruebas</h1>
+  <p>Cada grupo también se puede lanzar desde la consola: <code>await runSuite('faults')</code>.</p>
+  <div>
+    <button data-s="emu">Emuladores (UV-5R, BF-888, Icom, fakes)</button>
+    <button data-s="faults">Fallas en todos los modelos</button>
+    <button data-s="faultsemu">Fallas en emuladores</button>
+    <button data-s="chirp">Pruebas propias de CHIRP (pytest)</button>
+    <button data-s="ui">Seguridad de la interfaz</button>
+    <button data-s="verify">Grabar con verificación</button>
+    <button data-s="tk">Kenwood TK-2402/3402</button>
+    <button data-s="settle">Basura al abrir / reinicio</button>
+    <button data-s="copy">Copiar canales</button>
+    <button data-s="clip">Copiar/pegar filas</button>
+    <button data-s="rt22">RT22 / pausas precisas</button>
+    <button data-s="alias">Alias (Motorola C1)</button>
+    <button data-s="scan">Detección automática (barrido)</button>
+    <button id="all">Todo</button>
+    <button id="dl">Descargar resumen</button>
+  </div>
+  <p id="status">Cargando motor…</p>
+  <pre id="out"></pre>
+  <script type="module" src="runner.js"></script>
+</body>
+</html>
